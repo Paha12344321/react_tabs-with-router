@@ -1,5 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
-
+import { useNavigate, useParams } from 'react-router-dom';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Tabs, TabList, Tab, TabPanel } from 'react-tabs';
 
@@ -11,47 +10,44 @@ export const tabs = [
 
 export const TabsPage: React.FC = () => {
   const { tabId } = useParams<{ tabId: string }>();
+  const navigate = useNavigate();
 
   const selectedIndex = tabs.findIndex(tab => tab.id === tabId);
+
+  const handleSelect = (index: number) => {
+    navigate(`/tabs/${tabs[index].id}`);
+  };
 
   return (
     <>
       <h1 className="title">Tabs page</h1>
 
-      {/* Используем компоненты библиотеки вместо ручных <ul> */}
-      <Tabs
-        selectedIndex={selectedIndex === -1 ? 0 : selectedIndex}
-        onSelect={() => {}}
-      >
-        <div className="tabs is-boxed">
+      <div className="tabs is-boxed">
+        <Tabs
+          selectedIndex={selectedIndex === -1 ? undefined : selectedIndex}
+          onSelect={handleSelect}
+        >
           <TabList>
             {tabs.map(tab => (
-              <Tab key={tab.id}>
-                <Link
-                  to={`/tabs/${tab.id}`}
-                  className="navbar-item"
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                >
+              <Tab key={tab.id} selectedClassName="is-active">
+                <span className="navbar-item" style={{ cursor: 'pointer' }}>
                   {tab.title}
-                </Link>
+                </span>
               </Tab>
             ))}
           </TabList>
-        </div>
 
-        {/* Контент табов */}
-        <div className="block" data-cy="TabContent">
-          {selectedIndex !== -1 ? (
-            tabs.map(tab => (
+          <div className="block" data-cy="TabContent">
+            {tabs.map(tab => (
               <TabPanel key={tab.id}>
                 <p>{tab.content}</p>
               </TabPanel>
-            ))
-          ) : (
-            <p>Please select a tab</p>
-          )}
-        </div>
-      </Tabs>
+            ))}
+
+            {selectedIndex === -1 && <p>Please select a tab</p>}
+          </div>
+        </Tabs>
+      </div>
     </>
   );
 };
