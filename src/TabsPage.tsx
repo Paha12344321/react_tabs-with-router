@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Tabs, TabList, Tab, TabPanel } from 'react-tabs';
 
@@ -14,10 +14,6 @@ export const TabsPage: React.FC = () => {
 
   const selectedIndex = tabs.findIndex(tab => tab.id === tabId);
 
-  const handleSelect = (index: number) => {
-    navigate(`/tabs/${tabs[index].id}`);
-  };
-
   return (
     <>
       <h1 className="title">Tabs page</h1>
@@ -25,23 +21,26 @@ export const TabsPage: React.FC = () => {
       <div className="tabs is-boxed">
         <Tabs
           selectedIndex={selectedIndex === -1 ? undefined : selectedIndex}
-          onSelect={handleSelect}
+          onSelect={index => navigate(`/tabs/${tabs[index].id}`)}
         >
           <TabList>
             {tabs.map(tab => (
-              <Tab key={tab.id} selectedClassName="is-active">
-                <span className="navbar-item" style={{ cursor: 'pointer' }}>
+              /* Тест хочет видеть data-cy="Tab" и класс is-active здесь */
+              <Tab key={tab.id} data-cy="Tab" selectedClassName="is-active">
+                {/* Тест требует наличия <a> внутри.
+                    Мы используем Link, но отключаем его стандартное поведение,
+                    так как переключением занимается библиотека через onSelect.
+                */}
+                <Link to={`/tabs/${tab.id}`} onClick={e => e.preventDefault()}>
                   {tab.title}
-                </span>
+                </Link>
               </Tab>
             ))}
           </TabList>
 
           <div className="block" data-cy="TabContent">
             {tabs.map(tab => (
-              <TabPanel key={tab.id}>
-                <p>{tab.content}</p>
-              </TabPanel>
+              <TabPanel key={tab.id}>{tab.content}</TabPanel>
             ))}
 
             {selectedIndex === -1 && <p>Please select a tab</p>}
